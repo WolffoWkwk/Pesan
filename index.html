@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkripsi Pesan dengan Password</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.93);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+        }
+        
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(to right, #2980b9, #1c5a87);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-decrypt {
+            background: linear-gradient(to right, #27ae60, #219653);
+        }
+        
+        .btn-decrypt:hover {
+            background: linear-gradient(to right, #219653, #1e7e46);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+            word-wrap: break-word;
+        }
+        
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .result-content {
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            font-family: monospace;
+            overflow-x: auto;
+            border: 1px dashed #bdc3c7;
+        }
+        
+        .copy-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background-color: #636e72;
+        }
+        
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d5edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+        
+        .instructions {
+            background-color: #fffde7;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #f1c40f;
+        }
+        
+        .instructions h3 {
+            color: #d35400;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .panel {
+                min-width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Enkripsi Pesan dengan Password</h1>
+            <p>Amankan pesan Anda dengan password dan bagikan secara aman</p>
+        </div>
+        
+        <div class="content">
+            <div class="panel">
+                <h2 class="panel-title">🔒 Enkripsi Pesan</h2>
+                
+                <div class="input-group">
+                    <label for="password">Password (Default: 123)</label>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Masukkan password untuk enkripsi" value="">
+                        <button class="toggle-password" id="togglePassword">👁️</button>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="message">Pesan Rahasia</label>
+                    <textarea id="message" placeholder="Masukkan pesan yang ingin dienkripsi..."></textarea>
+                </div>
+                
+                <button class="btn" id="encryptBtn">Enkripsi Pesan</button>
+                
+                <div class="instructions">
+                    <h3>📋 Cara Menggunakan:</h3>
+                    <ol>
+                        <li>Password default sudah diatur ke <strong>"123"</strong></li>
+                        <li>Ganti password jika ingin menggunakan kunci berbeda</li>
+                        <li>Masukkan pesan yang ingin dienkripsi</li>
+                        <li>Klik tombol "Enkripsi Pesan"</li>
+                        <li>Salin link yang dihasilkan dan bagikan ke tim Anda</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">🔓 Dekripsi Pesan</h2>
+                
+                <div class="input-group">
+                    <label for="encryptedMessage">Pesan Terenkripsi</label>
+                    <textarea id="encryptedMessage" placeholder="Pesan terenkripsi akan muncul di sini setelah proses enkripsi..."></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="decryptPassword">Password untuk Dekripsi</label>
+                    <div class="password-container">
+                        <input type="password" id="decryptPassword" placeholder="Masukkan password untuk dekripsi">
+                        <button class="toggle-password" id="toggleDecryptPassword">👁️</button>
+                    </div>
+                </div>
+                
+                <button class="btn btn-decrypt" id="decryptBtn">Dekripsi Pesan</button>
+                
+                <div class="result" id="decryptionResult" style="display: none;">
+                    <h3>📜 Pesan Asli:</h3>
+                    <div class="result-content" id="decryptedMessage"></div>
+                </div>
+                
+                <div class="result" id="shareLinkContainer" style="display: none;">
+                    <h3>🔗 Link untuk Dibagikan:</h3>
+                    <div class="result-content" id="shareLink"></div>
+                    <button class="copy-btn" id="copyLinkBtn">Salin Link</button>
+                    <div id="copyLinkMessage" class="message"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="messageArea"></div>
+        
+        <div class="footer">
+            <p>© 2023 Aplikasi Enkripsi Pesan | Pesan akan aman dengan password yang benar</p>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk menampilkan/sembunyikan password
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+        
+        document.getElementById('toggleDecryptPassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('decryptPassword');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+        
+        // Fungsi untuk menampilkan pesan
+        function showMessage(text, type) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="message ${type}">${text}</div>`;
+            messageArea.style.display = 'block';
+            
+            setTimeout(() => {
+                messageArea.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Fungsi enkripsi sederhana (XOR cipher dengan password)
+        function encrypt(message, password) {
+            let encrypted = '';
+            for (let i = 0; i < message.length; i++) {
+                const charCode = message.charCodeAt(i) ^ password.charCodeAt(i % password.length);
+                encrypted += String.fromCharCode(charCode);
+            }
+            return btoa(encrypted); // Encode ke base64 untuk aman di URL
+        }
+        
+        // Fungsi dekripsi
+        function decrypt(encryptedBase64, password) {
+            try {
+                const encrypted = atob(encryptedBase64);
+                let decrypted = '';
+                for (let i = 0; i < encrypted.length; i++) {
+                    const charCode = encrypted.charCodeAt(i) ^ password.charCodeAt(i % password.length);
+                    decrypted += String.fromCharCode(charCode);
+                }
+                return decrypted;
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        // Fungsi untuk menghasilkan link yang bisa dibagikan
+        function generateShareLink(encryptedMessage) {
+            const baseUrl = window.location.href.split('?')[0];
+            return `${baseUrl}?msg=${encodeURIComponent(encryptedMessage)}`;
+        }
+        
+        // Fungsi untuk memeriksa parameter URL saat halaman dimuat
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encryptedMsg = urlParams.get('msg');
+            
+            if (encryptedMsg) {
+                document.getElementById('encryptedMessage').value = encryptedMsg;
+                showMessage('Pesan terenkripsi telah dimuat dari URL. Masukkan password untuk mendekripsi.', 'info');
+            }
+        }
+        
+        // Enkripsi pesan
+        document.getElementById('encryptBtn').addEventListener('click', function() {
+            const password = document.getElementById('password').value || '123';
+            const message = document.getElementById('message').value;
+            
+            if (!message.trim()) {
+                showMessage('Masukkan pesan yang akan dienkripsi!', 'error');
+                return;
+            }
+            
+            if (!password.trim()) {
+                showMessage('Masukkan password untuk enkripsi!', 'error');
+                return;
+            }
+            
+            const encryptedMessage = encrypt(message, password);
+            document.getElementById('encryptedMessage').value = encryptedMessage;
+            
+            // Generate shareable link
+            const shareLink = generateShareLink(encryptedMessage);
+            document.getElementById('shareLink').textContent = shareLink;
+            document.getElementById('shareLinkContainer').style.display = 'block';
+            
+            // Reset hasil dekripsi sebelumnya
+            document.getElementById('decryptionResult').style.display = 'none';
+            document.getElementById('decryptedMessage').textContent = '';
+            document.getElementById('decryptPassword').value = '';
+            
+            showMessage('Pesan berhasil dienkripsi! Salin link di atas untuk dibagikan ke tim Anda.', 'success');
+        });
+        
+        // Dekripsi pesan
+        document.getElementById('decryptBtn').addEventListener('click', function() {
+            const encryptedMessage = document.getElementById('encryptedMessage').value;
+            const password = document.getElementById('decryptPassword').value || '123';
+            
+            if (!encryptedMessage.trim()) {
+                showMessage('Masukkan pesan terenkripsi!', 'error');
+                return;
+            }
+            
+            if (!password.trim()) {
+                showMessage('Masukkan password untuk dekripsi!', 'error');
+                return;
+            }
+            
+            const decryptedMessage = decrypt(encryptedMessage, password);
+            
+            if (decryptedMessage === null) {
+                showMessage('Gagal mendekripsi pesan. Pastikan pesan terenkripsi valid.', 'error');
+                document.getElementById('decryptionResult').style.display = 'none';
+                return;
+            }
+            
+            if (!decryptedMessage) {
+                showMessage('Password salah atau pesan terenkripsi rusak!', 'error');
+                document.getElementById('decryptionResult').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('decryptedMessage').textContent = decryptedMessage;
+            document.getElementById('decryptionResult').style.display = 'block';
+            
+            showMessage('Pesan berhasil didekripsi!', 'success');
+        });
+        
+        // Salin link ke clipboard
+        document.getElementById('copyLinkBtn').addEventListener('click', function() {
+            const shareLink = document.getElementById('shareLink').textContent;
+            navigator.clipboard.writeText(shareLink).then(() => {
+                const copyLinkMessage = document.getElementById('copyLinkMessage');
+                copyLinkMessage.textContent = 'Link berhasil disalin ke clipboard!';
+                copyLinkMessage.className = 'message success';
+                copyLinkMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    copyLinkMessage.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                const copyLinkMessage = document.getElementById('copyLinkMessage');
+                copyLinkMessage.textContent = 'Gagal menyalin link: ' + err;
+                copyLinkMessage.className = 'message error';
+                copyLinkMessage.style.display = 'block';
+            });
+        });
+        
+        // Inisialisasi: Periksa parameter URL saat halaman dimuat
+        checkUrlParams();
+        
+        // Tampilkan pesan default
+        setTimeout(() => {
+            showMessage('Password default diatur ke "123". Anda bisa menggantinya jika ingin.', 'info');
+        }, 1000);
+    </script>
+</body>
+</html>
